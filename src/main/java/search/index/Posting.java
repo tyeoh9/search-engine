@@ -2,6 +2,8 @@
 Contains data of each entry in the inverted index
 */
 
+package search.index;
+
 public final class Posting {
 
     int docId;

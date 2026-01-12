@@ -2,7 +2,7 @@
 Stores important metadata about each Document
 */
 
-package search.ingest
+package search.ingest;
 
 public final class Document {
 
