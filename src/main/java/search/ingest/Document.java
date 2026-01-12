@@ -1,3 +1,7 @@
+/*
+Stores important metadata about each Document
+*/
+
 package search.ingest
 
 public final class Document {
