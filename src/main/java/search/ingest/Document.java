@@ -1,6 +1,6 @@
-/*
-Stores important metadata about each Document
-*/
+/**
+ * Stores important metadata about each Document
+ */
 
 package search.ingest;
 

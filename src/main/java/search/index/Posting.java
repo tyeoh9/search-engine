@@ -1,13 +1,13 @@
-/*
-Contains data of each entry in the inverted index
-*/
+/**
+ * Represents a single occurrence of a term in a document, including document ID and term frequency
+ */
 
 package search.index;
 
-public final class Posting {
+public class Posting {
 
-    int docId;
-    int termFrequency;
+    private final int docId;
+    private int termFrequency;
 
     public Posting(int docId, int termFrequency) {
         this.docId = docId;
