@@ -2,3 +2,23 @@
  * Reads JSON lines from Wikipedia dump files and converts them into Document objects
  * Uses Jackson streaming
  */
+
+package search.ingest;
+
+import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.IOException;
+import java.io.InputStream;
+
+public class WikiJsonReader {
+
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+
+    /**
+     * Reads a JSON file line by line and returns an iterator of Document objects
+     */
+    public MappingIterator<Document> readDocuments(InputStream in) throws IOException {
+        return MAPPER.readerFor(Document.class).readValues(in);
+    }
+}
