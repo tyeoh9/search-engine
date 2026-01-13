@@ -1,0 +1,4 @@
+# Wikipedia extraction output
+data/
+wiki_small_tmp/
+wiki_*.json

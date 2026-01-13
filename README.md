@@ -1,6 +1,6 @@
 # Mini Search Engine
 
-### Downloading the Wikipedia data
+### Handling the dataset: Wikipedia
 
 Source of data (~23 GB compressed):
 ```
@@ -22,4 +22,6 @@ Each file is JSON Lines (JSONL) format. An example line:
   "text": "Java is a high-level, class-based, object-oriented programming language that is designed to have as few implementation dependencies as possible.\n\nIt was originally developed by James Gosling at Sun Microsystems..."
 }
 ```
+
+Place resulting JSON files in the `data/` directory.
 
