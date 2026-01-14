@@ -12,15 +12,16 @@ import java.nio.file.Path;
 
 public class IngestRunner {
 
-    public static void main(Path file) throws Exception {
-        WikiJsonReader read = new WikiJsonReader();
+    public static void run(Path file) throws Exception {
+        WikiJsonReader reader = new WikiJsonReader();
 
-        try (InputStream in = Files.newInputStream(file) {
+        try (InputStream in = Files.newInputStream(file)) {
             MappingIterator<Document> docs = reader.readDocuments(in);
 
             while (docs.hasNext()) {
                 Document doc = docs.next();
-                // TODO: Process document
+                String articleName = doc.getTitle();
+                System.out.printf("Processing article: %s", articleName);
                 // TODO: Index document
             }
         }
