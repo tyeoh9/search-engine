@@ -12,6 +12,8 @@
 
 package search.index;
 
+import search.ingest.Document;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,5 +24,20 @@ public class InvertedIndex {
 
     public InvertedIndex() {
         this.invertedIndex = new HashMap<>();
+    }
+
+    // TODO: Indexing
+    public void addDocument(Document doc) {
+        throw new UnsupportedOperationException("addDocument not implemented");
+    }
+
+    // TODO: Lookup
+    public List<Posting> getPostings(String term) {
+        throw new UnsupportedOperationException("getPostings not implemented");
+    }
+
+    // TODO: Check Existence
+    public boolean containsTerm(String term) {
+        throw new UnsupportedOperationException("containsTerm not implemented");
     }
 }
