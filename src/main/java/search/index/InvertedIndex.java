@@ -12,32 +12,52 @@
 
 package search.index;
 
+import search.analysis.Tokenizer;
 import search.ingest.Document;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class InvertedIndex {
 
-    private final Map<String, List<Posting>> invertedIndex;
+    private final HashMap<String, List<Posting>> invertedIndex;
 
     public InvertedIndex() {
         this.invertedIndex = new HashMap<>();
     }
 
-    // TODO: Indexing
+    // Indexing
     public void addDocument(Document doc) {
-        throw new UnsupportedOperationException("addDocument not implemented");
+        String rawText = doc.getText();
+
+        if (rawText == null || rawText.isBlank()) { return; }
+
+        List<String> tokenizedText = Tokenizer.tokenize(rawText);
+        for (String token : tokenizedText) {
+            List<Posting> postings = this.getPostings(token);
+            Posting posting = findPosting(postings, doc.getId());
+
+            if (posting == null) {
+                postings.add(new Posting(doc.getId(), 1));
+            } else {
+                posting.incrementFreq();
+            }
+        }
     }
 
-    // TODO: Lookup
+    // Lookup
     public List<Posting> getPostings(String term) {
-        throw new UnsupportedOperationException("getPostings not implemented");
+        return this.invertedIndex.computeIfAbsent(term, t -> new ArrayList<>());
     }
 
-    // TODO: Check Existence
-    public boolean containsTerm(String term) {
-        throw new UnsupportedOperationException("containsTerm not implemented");
+    // Find posting
+    public Posting findPosting(List<Posting> postings, int docId) {
+        for (Posting posting : postings) {
+            if (posting.getDocId() == docId) {
+                return posting;
+            }
+        }
+        return null;
     }
 }
