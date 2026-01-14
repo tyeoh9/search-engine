@@ -15,4 +15,16 @@ public final class Document {
         this.title = title;
         this.text = text;
     }
+
+    public int getId() {
+        return this.id;
+    }
+
+    public int getTitle() {
+        return this.title;
+    }
+
+    public int getText() {
+        return this.text;
+    }
 }
