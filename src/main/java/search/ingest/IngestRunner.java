@@ -20,8 +20,6 @@ public class IngestRunner {
 
             while (docs.hasNext()) {
                 Document doc = docs.next();
-                String articleName = doc.getTitle();
-                System.out.printf("Processing article: %s", articleName);
                 // TODO: Index document
             }
         }
