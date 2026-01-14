@@ -13,4 +13,13 @@ public class Posting {
         this.docId = docId;
         this.termFrequency = termFrequency;
     }
+
+    public int getDocId() { return this.docId; }
+
+    public int getFrequency() { return this.termFrequency; }
+
+    // Increment term frequency
+    public void incrementFreq() {
+        this.termFrequency++;
+    }
 }
