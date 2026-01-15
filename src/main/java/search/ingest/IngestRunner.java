@@ -7,13 +7,10 @@ package search.ingest;
 import search.index.InvertedIndex;
 
 import com.fasterxml.jackson.databind.MappingIterator;
-import search.index.Posting;
 
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.List;
 
 public class IngestRunner {
 
