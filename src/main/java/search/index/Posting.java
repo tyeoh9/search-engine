@@ -22,4 +22,9 @@ public class Posting {
     public void incrementFreq() {
         this.termFrequency++;
     }
+
+    // Print posting (for debugging)
+    public void printPosting() {
+        System.out.println("DocId: " + this.getDocId() + ", Frequency: " + this.getFrequency());
+    }
 }
