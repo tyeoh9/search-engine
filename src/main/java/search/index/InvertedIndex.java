@@ -12,9 +12,11 @@
 
 package search.index;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import search.analysis.Tokenizer;
 import search.ingest.Document;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -68,5 +70,22 @@ public class InvertedIndex {
     // Get document count
     public int getDocumentCount() {
         return this.documentCount;
+    }
+
+    // Get index
+    public HashMap<String, List<Posting>> getIndex() {
+        return this.invertedIndex;
+    }
+
+    // Save index to disk
+    public void save(Path path) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.writeValue(path.toFile(), this);
+    }
+
+    // Load index from disk
+    public static InvertedIndex load(Path path) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(path.toFile(), InvertedIndex.class);
     }
 }
