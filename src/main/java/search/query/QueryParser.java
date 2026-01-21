@@ -6,14 +6,16 @@ package search.query;
 
 import search.analysis.Tokenizer;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 public class QueryParser {
 
-    // TODO: Deduplicate repeat words in the query
-
     // Parse user query, normalize, and tokenize
     public List<String> parse(String rawQuery) {
-        return Tokenizer.tokenize(rawQuery);
+        return new ArrayList<>(
+                new HashSet<>(Tokenizer.tokenize(rawQuery))
+        );
     }
 }
