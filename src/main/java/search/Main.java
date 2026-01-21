@@ -1,5 +1,5 @@
 /**
- * Orchestrates dataset loading, idnexing, and querying
+ * Orchestrates dataset loading, indexing, and querying
  */
 
 package search;
