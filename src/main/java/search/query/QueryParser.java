@@ -10,6 +10,8 @@ import java.util.List;
 
 public class QueryParser {
 
+    // TODO: Deduplicate repeat words in the query
+
     // Parse user query, normalize, and tokenize
     public List<String> parse(String rawQuery) {
         return Tokenizer.tokenize(rawQuery);

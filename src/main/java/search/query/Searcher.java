@@ -38,11 +38,20 @@ public class Searcher {
 
     // Score documents against query using term frequencies (tf)
     public void scoreDocs(List<String> tokenizedQuery) {
+        int totalDocs = index.getDocumentCount();
+
         for (String token : tokenizedQuery) {
             List<Posting> postings = this.index.getPostings(token);
+            int df = postings.size();
+
+            if (df == 0) continue;
+
+            double idf = Math.log((double) (totalDocs + 1) / (df + 1));
 
             for (Posting p : postings) {
-                this.increaseScore(p.getDocId(), p.getFrequency());
+                double tf = p.getFrequency();
+                double tfidf = tf * idf;
+                this.increaseScore(p.getDocId(), tfidf);
             }
         }
     }

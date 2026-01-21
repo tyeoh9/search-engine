@@ -22,13 +22,17 @@ import java.util.List;
 public class InvertedIndex {
 
     private final HashMap<String, List<Posting>> invertedIndex;
+    private int documentCount;
 
     public InvertedIndex() {
         this.invertedIndex = new HashMap<>();
+        this.documentCount = 0;
     }
 
     // Indexing
     public void addDocument(Document doc) {
+        documentCount++;
+
         String rawText = doc.getText();
 
         if (rawText == null || rawText.isBlank()) { return; }
@@ -59,5 +63,10 @@ public class InvertedIndex {
             }
         }
         return null;
+    }
+
+    // Get document count
+    public int getDocumentCount() {
+        return this.documentCount;
     }
 }
