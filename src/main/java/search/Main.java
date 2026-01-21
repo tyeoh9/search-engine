@@ -5,7 +5,6 @@
 package search;
 
 import search.index.InvertedIndex;
-import search.index.Posting;
 import search.ingest.WikiJsonReader;
 import search.ingest.Document;
 import search.query.QueryParser;
