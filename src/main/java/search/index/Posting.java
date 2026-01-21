@@ -4,12 +4,19 @@
 
 package search.index;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Posting {
 
     private final int docId;
     private int termFrequency;
 
-    public Posting(int docId, int termFrequency) {
+    @JsonCreator
+    public Posting(
+            @JsonProperty("docId") int docId,
+            @JsonProperty("termFrequency") @JsonAlias("frequency") int termFrequency) {
         this.docId = docId;
         this.termFrequency = termFrequency;
     }
