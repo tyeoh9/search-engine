@@ -20,6 +20,7 @@ import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 public class Main {
 
@@ -55,9 +56,21 @@ public class Main {
         }
 
         // Score and rank documents against user query
-        String query = "china";
-        search(query, index, docIdToTitle);
+        Scanner scanner = new Scanner(System.in);
+        String query = "";
 
+        while (!query.equalsIgnoreCase("exit")) {
+            System.out.println("Enter query (or type 'exit' to quit): ");
+            query = scanner.nextLine().trim();
+
+            if (query.equalsIgnoreCase("exit")) {
+                System.out.println("Exiting...");
+                break;
+            }
+            search(query, index, docIdToTitle);
+        }
+
+        scanner.close();
     }
 
     private static void search(String userQuery, InvertedIndex index, Map<Integer, String> docIdToTitle) {
@@ -66,10 +79,14 @@ public class Main {
 
         searcher.scoreDocs(parser.parse(userQuery));
         List<Map.Entry<Integer, Double>> results = searcher.getTopK(Config.TOP_K_RESULTS);
-        System.out.println("\nResults for '" + userQuery + "':");
+
+        System.out.printf("%nTop %d search results for '%s':%n", Config.TOP_K_RESULTS, userQuery);
+
+        int rank = 1;
         for (Map.Entry<Integer, Double> r : results) {
             String relatedArticle = docIdToTitle.get(r.getKey());
-            System.out.println("\t-" + relatedArticle + " (score: " + r.getValue() + ")");
+            System.out.printf("%d. %s (score: %.2f)%n", rank, relatedArticle, r.getValue());
+            rank++;
         }
     }
 }
