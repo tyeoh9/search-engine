@@ -18,6 +18,7 @@ import search.index.Posting;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Searcher {
 
@@ -36,7 +37,7 @@ public class Searcher {
     }
 
     // Score documents against query using term frequencies (tf)
-    public void scoreDocuments(List<String> tokenizedQuery) {
+    public void scoreDocs(List<String> tokenizedQuery) {
         for (String token : tokenizedQuery) {
             List<Posting> postings = this.index.getPostings(token);
 
@@ -44,6 +45,15 @@ public class Searcher {
                 this.increaseScore(p.getDocId(), p.getFrequency());
             }
         }
+    }
+
+    // Returns the top K documents that match
+    public List<Map.Entry<Integer, Double>> getTopK(int k) {
+        return docScores.entrySet()
+                .stream()
+                .sorted((a, b) -> Double.compare(b.getValue(), a.getValue()))
+                .limit(k)
+                .toList();
     }
 
 }
