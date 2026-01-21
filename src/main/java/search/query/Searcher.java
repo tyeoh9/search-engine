@@ -11,3 +11,22 @@
  *
  */
 
+package search.query;
+
+import java.util.HashMap;
+
+public class Searcher {
+
+    // Maps docId -> score
+    private HashMap<Integer, Double> docScores;
+
+    public Searcher() {
+        this.docScores = new HashMap<>();
+    }
+
+    // Increase score for docId by additionalScore
+    public void increaseScore(int docId, double additionalScore) {
+        this.docScores.merge(docId, additionalScore, Double::sum);
+    }
+
+}
