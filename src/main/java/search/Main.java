@@ -12,7 +12,6 @@ import search.query.Searcher;
 
 import com.fasterxml.jackson.databind.MappingIterator;
 
-import javax.management.Query;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
