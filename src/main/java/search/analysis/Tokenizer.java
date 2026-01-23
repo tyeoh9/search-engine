@@ -18,6 +18,7 @@ public class Tokenizer {
             return List.of(); // Returns empty list (immutable)
         }
 
+        // TODO: Perform stemming as well
         return Arrays.stream(text
                 .toLowerCase()
                 .replaceAll("[^a-z0-9 ]", " ")

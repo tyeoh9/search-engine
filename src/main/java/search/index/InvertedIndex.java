@@ -23,6 +23,7 @@ import java.util.List;
 
 public class InvertedIndex {
 
+    // TODO: Instead of using List<Posting> use HashMap<Integer, Integer>
     private final HashMap<String, List<Posting>> invertedIndex;
     private int documentCount;
 
@@ -33,6 +34,8 @@ public class InvertedIndex {
 
     // Indexing
     public void addDocument(Document doc) {
+        // TODO: Skip very common stop words (e.g. the, of, and)
+        // TODO: Tokenize document -> build local map -> merge with global
         documentCount++;
 
         String rawText = doc.getText();
