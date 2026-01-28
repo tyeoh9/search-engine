@@ -8,6 +8,8 @@
 
 package search.analysis;
 
+import search.config.Config;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -24,6 +26,7 @@ public class Tokenizer {
                 .replaceAll("[^a-z0-9 ]", " ")
                 .split("\\s+"))
                 .filter(token -> !token.isBlank())
+                .filter(token -> !Config.STOPWORDS.contains(token))
                 .toList();
     }
 }
