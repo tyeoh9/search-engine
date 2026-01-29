@@ -14,7 +14,6 @@
 package search.query;
 
 import search.index.InvertedIndex;
-import search.index.Posting;
 
 import java.util.HashMap;
 import java.util.List;
@@ -41,18 +40,17 @@ public class Searcher {
         int totalDocs = index.getDocumentCount();
 
         for (String token : tokenizedQuery) {
-            List<Posting> postings = this.index.getPostings(token);
+            HashMap<Integer, Integer> postings = this.index.getPostings(token);
             int df = postings.size();
 
             if (df == 0) continue;
 
             double idf = Math.log((double) (totalDocs + 1) / (df + 1));
 
-            for (Posting p : postings) {
-                double tf = p.getFrequency();
-                double tfidf = tf * idf;
-                this.increaseScore(p.getDocId(), tfidf);
-            }
+            postings.forEach((docId, termFreq) -> {
+                double tfidf = termFreq * idf;
+                this.increaseScore(docId, tfidf);
+            });
         }
     }
 
