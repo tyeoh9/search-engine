@@ -17,10 +17,18 @@ import search.ingest.Document;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import dev.langchain4j.data.embedding.Embedding;
+import dev.langchain4j.model.embedding.EmbeddingModel;
+import dev.langchain4j.model.embedding.AllMiniLmL6V2QuantizedEmbeddingModel;
 
 public class InvertedIndex {
 
     private final HashMap<String, HashMap<Integer, Integer>> invertedIndex;
+    private final HashMap<Integer, float[]> vectorIndex = new HashMap<>(); // docId -> embedding
+    private final EmbeddingModel embeddingModel = new AllMiniLmL6V2QuantizedEmbeddingModel();
+
     @JsonProperty("wordCount")
     private HashMap<Integer, Integer> wordCount; // docId -> wordCount
     @JsonProperty("documentCount")
@@ -39,6 +47,7 @@ public class InvertedIndex {
     public void addDocument(Document doc) {
         // TODO: Tokenize document -> build local map -> merge with global
 
+        // Traditional indexing - BM25
         String rawText = doc.getText();
         if (rawText == null || rawText.isBlank()) { return; }
 
@@ -53,6 +62,10 @@ public class InvertedIndex {
             HashMap<Integer, Integer> postings = this.getPostings(token);
             postings.merge(doc.getId(), 1, Integer::sum);
         }
+
+        // Vector indexing
+        Embedding embedding = embeddingModel.embed(doc.getText()).content();
+        this.vectorIndex.put(doc.getId(), embedding.vector());
     }
 
     // Lookup
@@ -79,6 +92,15 @@ public class InvertedIndex {
     // Get index
     public HashMap<String, HashMap<Integer, Integer>> getIndex() {
         return this.invertedIndex;
+    }
+
+    // Get embedding
+    public float[] getEmbedding(int docId) {
+        return vectorIndex.get(docId);
+    }
+
+    public Map<Integer, float[]> getAllVectors() {
+        return vectorIndex;
     }
 
     // Save index to disk
