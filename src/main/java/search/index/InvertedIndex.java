@@ -9,6 +9,7 @@
 
 package search.index;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import search.analysis.Tokenizer;
 import search.ingest.Document;
@@ -20,11 +21,18 @@ import java.util.List;
 public class InvertedIndex {
 
     private final HashMap<String, HashMap<Integer, Integer>> invertedIndex;
+    @JsonProperty("wordCount")
+    private HashMap<Integer, Integer> wordCount; // docId -> wordCount
+    @JsonProperty("documentCount")
     private int documentCount;
+    @JsonProperty("wordsParsed")
+    private int wordsParsed;
 
     public InvertedIndex() {
         this.invertedIndex = new HashMap<>();
+        this.wordCount = new HashMap<>();
         this.documentCount = 0;
+        this.wordsParsed = 0;
     }
 
     // Indexing
@@ -34,9 +42,13 @@ public class InvertedIndex {
         String rawText = doc.getText();
         if (rawText == null || rawText.isBlank()) { return; }
 
-        documentCount++;
-
         List<String> tokenizedText = Tokenizer.tokenize(rawText);
+        int docSize = tokenizedText.size();
+
+        documentCount++;
+        this.wordCount.put(doc.getId(), docSize);
+        this.wordsParsed += docSize;
+
         for (String token : tokenizedText) {
             HashMap<Integer, Integer> postings = this.getPostings(token);
             postings.merge(doc.getId(), 1, Integer::sum);
@@ -51,6 +63,17 @@ public class InvertedIndex {
     // Get document count
     public int getDocumentCount() {
         return this.documentCount;
+    }
+
+    // Get average doc length
+    public double getAverageDocLength() {
+        if (documentCount == 0) return 0;
+        return (double) this.wordsParsed / this.getDocumentCount();
+    }
+
+    // Get length of specific document
+    public int getDocLength(int docId) {
+        return wordCount.get(docId);
     }
 
     // Get index

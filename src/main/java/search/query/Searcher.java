@@ -35,9 +35,14 @@ public class Searcher {
         this.docScores.merge(docId, additionalScore, Double::sum);
     }
 
-    // Score documents against query using term frequencies (tf)
+    // Score document using BM25
     public void scoreDocs(List<String> tokenizedQuery) {
         int totalDocs = index.getDocumentCount();
+        double avgdl = index.getAverageDocLength();
+
+        // BM25 Hyperparameters
+        final double k1 = 1.2;
+        final double b = 0.75;
 
         for (String token : tokenizedQuery) {
             HashMap<Integer, Integer> postings = this.index.getPostings(token);
@@ -45,11 +50,16 @@ public class Searcher {
 
             if (df == 0) continue;
 
-            double idf = Math.log((double) (totalDocs + 1) / (df + 1));
+            double idf = Math.log(1 + (totalDocs - df + 0.5) / (df + 0.5));
 
             postings.forEach((docId, termFreq) -> {
-                double tfidf = termFreq * idf;
-                this.increaseScore(docId, tfidf);
+                int docLen = index.getDocLength(docId);
+
+                double tfLowerPart = termFreq + k1 * (1 - b + b * (docLen / avgdl));
+                double bm25Tf = (termFreq * (k1 + 1)) / tfLowerPart;
+
+                double finalScore = idf * bm25Tf;
+                this.increaseScore(docId, finalScore);
             });
         }
     }
