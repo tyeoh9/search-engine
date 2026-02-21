@@ -12,8 +12,12 @@
 
 package search.query;
 
+import dev.langchain4j.model.embedding.AllMiniLmL6V2QuantizedEmbeddingModel;
+import dev.langchain4j.model.embedding.EmbeddingModel;
 import search.index.InvertedIndex;
+import search.query.QueryParser;
 
+import javax.management.Query;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,10 +27,12 @@ public class Searcher {
     // Maps docId -> score
     private final HashMap<Integer, Double> docScores;
     private final InvertedIndex index;
+    private final EmbeddingModel model;
 
     public Searcher(InvertedIndex index) {
         this.docScores = new HashMap<>();
         this.index = index;
+        this.model = new AllMiniLmL6V2QuantizedEmbeddingModel();
     }
 
     // Increase score for docId by additionalScore
@@ -35,7 +41,7 @@ public class Searcher {
     }
 
     // Score document using BM25
-    public void scoreDocs(List<String> tokenizedQuery) {
+    public void scoreDocsBM25(List<String> tokenizedQuery) {
         int totalDocs = index.getDocumentCount();
         double avgdl = index.getAverageDocLength();
 
@@ -63,12 +69,80 @@ public class Searcher {
         }
     }
 
+    public void scoreDocsSemantic(String rawQuery) {
+        float[] queryVector = this.model.embed(rawQuery).content().vector();
+
+        index.getAllVectors().forEach((docId, docVector) -> {
+            double similarity = cosineSimilarity(queryVector, docVector);
+            // We boost semantic scores to align them with BM25 ranges if needed
+            this.increaseScore(docId, similarity);
+        });
+    }
+
+    private double cosineSimilarity(float[] v1, float[] v2) {
+        double dotProduct = 0;
+        double normA = 0;
+        double normB = 0;
+        for (int i = 0; i < v1.length; i++) {
+            dotProduct += v1[i] * v2[i];
+            normA += v1[i] * v1[i];
+            normB += v2[i] * v2[i];
+        }
+        return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
+    }
+
+    public List<Map.Entry<Integer, Double>> searchHybrid(String userQuery, int topK) {
+        QueryParser parser = new QueryParser();
+
+        // 1. Get Ranked BM25 Results
+        List<String> tokens = parser.parse(userQuery);
+        this.docScores.clear();
+        this.scoreDocsBM25(tokens);
+        List<Integer> bm25Ranked = getTopKIds(100);
+
+        // 2. Get Ranked Semantic Results
+        this.docScores.clear();
+        this.scoreDocsSemantic(userQuery);
+        List<Integer> vectorRanked = getTopKIds(100);
+
+        // 3. Fuse them using RRF
+        Map<Integer, Double> hybridScores = new HashMap<>();
+        int k = 60; // Standard constant
+
+        fuse(hybridScores, bm25Ranked, k);
+        fuse(hybridScores, vectorRanked, k);
+
+        // 4. Sort and return
+        return hybridScores.entrySet().stream()
+                .sorted((a, b) -> Double.compare(b.getValue(), a.getValue()))
+                .limit(topK)
+                .toList();
+    }
+
+    private void fuse(Map<Integer, Double> hybridScores, List<Integer> rankedIds, int k) {
+        for (int i = 0; i < rankedIds.size(); i++) {
+            int docId = rankedIds.get(i);
+            int rank = i + 1; // Ranks start at 1
+            double score = 1.0 / (k + rank);
+            hybridScores.merge(docId, score, Double::sum);
+        }
+    }
+
     // Returns the top K documents that match
     public List<Map.Entry<Integer, Double>> getTopK(int k) {
         return docScores.entrySet()
                 .stream()
                 .sorted((a, b) -> Double.compare(b.getValue(), a.getValue()))
                 .limit(k)
+                .toList();
+    }
+
+    // TODO: Use PriorityQueue of size K
+    public List<Integer> getTopKIds(int k) {
+        return docScores.entrySet().stream()
+                .sorted((a, b) -> Double.compare(b.getValue(), a.getValue())) // Sort descending
+                .limit(k)
+                .map(Map.Entry::getKey)
                 .toList();
     }
 
