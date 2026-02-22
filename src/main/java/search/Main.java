@@ -17,10 +17,7 @@ import com.fasterxml.jackson.databind.MappingIterator;
 
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
 
@@ -43,12 +40,15 @@ public class Main {
             WikiJsonReader reader = new WikiJsonReader();
 
             try (InputStream in = Files.newInputStream(Config.WIKI_DATASET)) {
+                List<Document> allDocs = new ArrayList<>();
                 MappingIterator<Document> docs = reader.readDocuments(in);
                 while (docs.hasNext()) {
                     Document doc = docs.next();
+                    allDocs.add(doc);
                     docIdToTitle.put(doc.getId(), doc.getTitle());
                     index.addDocument(doc);
                 }
+                index.buildVectorIndex(allDocs);
             }
 
             index.save(Config.INDEX_PATH);
@@ -74,18 +74,16 @@ public class Main {
     }
 
     private static void search(String userQuery, InvertedIndex index, Map<Integer, String> docIdToTitle) {
-        QueryParser parser = new QueryParser();
         Searcher searcher = new Searcher(index);
 
-        searcher.scoreDocs(parser.parse(userQuery));
-        List<Map.Entry<Integer, Double>> results = searcher.getTopK(Config.TOP_K_RESULTS);
+        List<Map.Entry<Integer, Double>> results = searcher.searchHybrid(userQuery, Config.TOP_K_RESULTS);
 
         System.out.printf("%nTop %d search results for '%s':%n", Config.TOP_K_RESULTS, userQuery);
 
         int rank = 1;
         for (Map.Entry<Integer, Double> r : results) {
             String relatedArticle = docIdToTitle.get(r.getKey());
-            System.out.printf("%d. %s (score: %.2f)%n", rank, relatedArticle, r.getValue());
+            System.out.printf("%d. %s (score: %.5f)%n", rank, relatedArticle, r.getValue());
             rank++;
         }
     }
